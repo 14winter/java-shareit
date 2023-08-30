@@ -7,8 +7,14 @@ import java.util.Optional;
 
 public interface UserRepository {
     Collection<User> findAll();
+
     User create(User user);
+
     User update(User user);
+
     Optional<User> getUser(Long id);
+
     void deleteUser(Long id);
+
+    boolean isEmailUnique(String email);
 }
