@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.UserAlreadyExistException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -29,43 +30,50 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         log.info("Получен запрос на создание пользователя");
-        try {
-            User createdUser = userRepository.create(UserMapper.toUser(userDto));
-            return UserMapper.toUserDto(createdUser);
-        } catch (UserNotFoundException e) {
-            throw new IllegalArgumentException("Неверные данные пользователя", e);
-        }
+        User createdUser = userRepository.create(UserMapper.toUser(userDto));
+        return UserMapper.toUserDto(createdUser);
     }
 
     @Override
-    public UserDto update(UserDto userDto) {
+    public UserDto update(UserDto userDto, Long id) {
         log.info("Получен запрос на обновление пользователя");
-        try {
-            User updatedUser = userRepository.update(UserMapper.toUser(userDto));
-            return UserMapper.toUserDto(updatedUser);
-        } catch (UserNotFoundException e) {
-            throw new IllegalArgumentException("Неверные данные пользователя", e);
+        User user = getUserById(id);
+        if (userDto.getName() != null && !userDto.getName().isBlank()) {
+            user.setName(userDto.getName());
         }
+        if (userDto.getEmail() != null && !userDto.getEmail().isBlank() && !userDto.getEmail().equals(user.getEmail())) {
+            if (!userRepository.isEmailUnique(userDto.getEmail())) {
+                throw new UserAlreadyExistException("Пользователь с таким email уже существует");
+            }
+            user.setEmail(userDto.getEmail());
+        }
+        userRepository.update(user);
+        return UserMapper.toUserDto(user);
     }
 
     @Override
     public UserDto getUser(Long id) {
         log.info("Получен запрос на получение пользователя");
-        if (id <= 0) {
-            log.info("id {} должен быть больше ноля", id);
-            throw new UserNotFoundException("id должен быть больше ноля");
-        }
-        return userRepository.getUser(id)
-                .map(UserMapper::toUserDto)
-                .orElseThrow(() -> {
-                    log.info("Пользователь с id {} не найден", id);
-                    return new UserNotFoundException(String.format("Пользователя с id " + id + " не существует."));
-                });
+        User user = getUserById(id);
+        return UserMapper.toUserDto(user);
     }
 
     @Override
     public void deleteUser(Long id) {
         log.info("Получен запрос на удаление пользователя");
+        getUserById(id);
         userRepository.deleteUser(id);
+    }
+
+    private User getUserById(Long id) {
+        if (id <= 0) {
+            log.info("id {} должен быть больше ноля", id);
+            throw new IllegalArgumentException("id должен быть больше ноля");
+        }
+        return userRepository.getUser(id)
+                .orElseThrow(() -> {
+                    log.info("Пользователь с id {} не найден", id);
+                    throw new UserNotFoundException(id);
+                });
     }
 }
