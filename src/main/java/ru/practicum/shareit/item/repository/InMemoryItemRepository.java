@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.DataNotFoundException;
-import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.InMemoryUserRepository;
@@ -13,7 +12,6 @@ import javax.validation.ValidationException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -27,16 +25,13 @@ public class InMemoryItemRepository implements ItemRepository {
     @Override
     public Collection<Item> findAllByOwner(User owner) {
         return items.values().stream()
-                .filter(item -> item.getOwner().equals(owner))
+                .filter(item -> item.getOwner().getId().equals(owner.getId()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public Item create(Long userId, Item item) {
-        item.setOwner(userRepository.getUser(userId).orElseThrow(() -> {
-            log.info("Пользователь с id {} не найден", userId);
-            return new UserNotFoundException(userId);
-        }));
+        item.setOwner(userRepository.getUser(userId));
         if (item.getAvailable() == null) {
             throw new ValidationException("Нельзя создать вещь без статуса доступа");
         }
@@ -47,25 +42,36 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     @Override
-    public Item update(Long userId, Item item) {
-        if (items.containsKey(item.getId())) {
-            items.put(item.getId(), item);
-            log.info("Вещь обновлена: {}", item);
-            return item;
-        } else {
-            log.info("Вещь с id {} не найдена", item.getId());
-            throw new DataNotFoundException(item.getId());
+    public Item update(Long userId, Item item, Long itemId) {
+        userRepository.getUser(userId);
+        Item oldItem = getItem(itemId);
+
+        if (!oldItem.getOwner().getId().equals(userId)) {
+            log.info("У пользователя по id {} нет вещи с id {}", userId, itemId);
+            throw new DataNotFoundException(itemId);
         }
+        if (item.getName() != null && !item.getName().isBlank()) {
+            oldItem.setName(item.getName());
+        }
+        if (item.getDescription() != null && !item.getDescription().isBlank()) {
+            oldItem.setDescription(item.getDescription());
+        }
+        if ((item.getAvailable() != null)) {
+            oldItem.setAvailable(item.getAvailable());
+        }
+        items.put(oldItem.getId(), oldItem);
+        log.info("Вещь обновлена: {}", oldItem);
+        return oldItem;
     }
 
     @Override
-    public Optional<Item> getItem(Long id) {
+    public Item getItem(Long id) {
         Item item = items.get(id);
         if (item == null) {
             log.info("Вещь с id {} не найдена", id);
             throw new DataNotFoundException(id);
         }
-        return Optional.of(item);
+        return item;
     }
 
     @Override

@@ -3,8 +3,6 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.UserAlreadyExistException;
-import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -37,43 +35,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(UserDto userDto, Long id) {
         log.info("Получен запрос на обновление пользователя");
-        User user = getUserById(id);
-        if (userDto.getName() != null && !userDto.getName().isBlank()) {
-            user.setName(userDto.getName());
-        }
-        if (userDto.getEmail() != null && !userDto.getEmail().isBlank() && !userDto.getEmail().equals(user.getEmail())) {
-            if (!userRepository.isEmailUnique(userDto.getEmail())) {
-                throw new UserAlreadyExistException("Пользователь с таким email уже существует");
-            }
-            user.setEmail(userDto.getEmail());
-        }
-        userRepository.update(user);
-        return UserMapper.toUserDto(user);
+        User updatedUser = userRepository.update(UserMapper.toUser(userDto), id);
+        return UserMapper.toUserDto(updatedUser);
     }
 
     @Override
     public UserDto getUser(Long id) {
         log.info("Получен запрос на получение пользователя");
-        User user = getUserById(id);
+        User user = userRepository.getUser(id);
         return UserMapper.toUserDto(user);
     }
 
     @Override
     public void deleteUser(Long id) {
         log.info("Получен запрос на удаление пользователя");
-        getUserById(id);
         userRepository.deleteUser(id);
-    }
-
-    private User getUserById(Long id) {
-        if (id <= 0) {
-            log.info("id {} должен быть больше ноля", id);
-            throw new IllegalArgumentException("id должен быть больше ноля");
-        }
-        return userRepository.getUser(id)
-                .orElseThrow(() -> {
-                    log.info("Пользователь с id {} не найден", id);
-                    throw new UserNotFoundException(id);
-                });
     }
 }

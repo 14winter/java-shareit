@@ -9,7 +9,6 @@ import ru.practicum.shareit.user.model.User;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 @Slf4j
@@ -35,21 +34,30 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public User update(User user) {
-        users.put(user.getId(), user);
-        log.info("Обновлен пользователь: {}", user);
-        return user;
-
+    public User update(User user, Long id) {
+        User oldUser = getUser(id);
+        if (user.getName() != null && !user.getName().isBlank()) {
+            oldUser.setName(user.getName());
+        }
+        if (user.getEmail() != null && !user.getEmail().isBlank() && !user.getEmail().equals(oldUser.getEmail())) {
+            if (!isEmailUnique(user.getEmail())) {
+                throw new UserAlreadyExistException("Пользователь с таким email уже существует");
+            }
+            oldUser.setEmail(user.getEmail());
+        }
+        users.put(oldUser.getId(), oldUser);
+        log.info("Обновлен пользователь: {}", oldUser);
+        return oldUser;
     }
 
     @Override
-    public Optional<User> getUser(Long id) {
+    public User getUser(Long id) {
         User user = users.get(id);
         if (user == null) {
             log.info("Пользователь с id {} не найден", id);
             throw new UserNotFoundException(id);
         }
-        return Optional.of(user);
+        return user;
     }
 
     @Override
@@ -67,8 +75,7 @@ public class InMemoryUserRepository implements UserRepository {
         return id++;
     }
 
-    @Override
-    public boolean isEmailUnique(String email) {
+    private boolean isEmailUnique(String email) {
         return users.values().stream()
                 .noneMatch(user -> user.getEmail().equals(email));
     }
