@@ -10,7 +10,7 @@ public interface ItemRepository {
 
     Item create(Long userId, Item item);
 
-    Item update(Long userId, Item item, Long itemId);
+    Item update(Item item);
 
     Item getItem(Long id);
 

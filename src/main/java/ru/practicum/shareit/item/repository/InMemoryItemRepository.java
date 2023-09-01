@@ -42,26 +42,10 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     @Override
-    public Item update(Long userId, Item item, Long itemId) {
-        userRepository.getUser(userId);
-        Item oldItem = getItem(itemId);
-
-        if (!oldItem.getOwner().getId().equals(userId)) {
-            log.info("У пользователя по id {} нет вещи с id {}", userId, itemId);
-            throw new DataNotFoundException(itemId);
-        }
-        if (item.getName() != null && !item.getName().isBlank()) {
-            oldItem.setName(item.getName());
-        }
-        if (item.getDescription() != null && !item.getDescription().isBlank()) {
-            oldItem.setDescription(item.getDescription());
-        }
-        if ((item.getAvailable() != null)) {
-            oldItem.setAvailable(item.getAvailable());
-        }
-        items.put(oldItem.getId(), oldItem);
-        log.info("Вещь обновлена: {}", oldItem);
-        return oldItem;
+    public Item update(Item item) {
+        items.put(item.getId(), item);
+        log.info("Вещь обновлена: {}", item);
+        return item;
     }
 
     @Override

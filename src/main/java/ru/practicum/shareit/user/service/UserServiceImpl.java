@@ -35,8 +35,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(UserDto userDto, Long id) {
         log.info("Получен запрос на обновление пользователя");
-        User updatedUser = userRepository.update(UserMapper.toUser(userDto), id);
-        return UserMapper.toUserDto(updatedUser);
+        UserDto updatedUser = getUser(id);
+        if (userDto.getName() != null && !userDto.getName().isBlank()) {
+            updatedUser.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null && !userDto.getEmail().isBlank() && !userDto.getEmail().equals(updatedUser.getEmail())) {
+            updatedUser.setEmail(userDto.getEmail());
+        }
+        userRepository.update(UserMapper.toUser(updatedUser), id);
+        return updatedUser;
     }
 
     @Override

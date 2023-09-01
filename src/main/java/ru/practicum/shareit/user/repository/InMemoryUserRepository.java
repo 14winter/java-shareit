@@ -24,7 +24,7 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User create(User user) {
-        if (!isEmailUnique(user.getEmail())) {
+        if (!isEmailUnique(user.getEmail(), user.getId())) {
             throw new UserAlreadyExistException("Пользователь с таким email уже существует");
         }
         user.setId(generateId());
@@ -35,19 +35,12 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User update(User user, Long id) {
-        User oldUser = getUser(id);
-        if (user.getName() != null && !user.getName().isBlank()) {
-            oldUser.setName(user.getName());
+        if (!isEmailUnique(user.getEmail(), id)) {
+            throw new UserAlreadyExistException("Пользователь с таким email уже существует");
         }
-        if (user.getEmail() != null && !user.getEmail().isBlank() && !user.getEmail().equals(oldUser.getEmail())) {
-            if (!isEmailUnique(user.getEmail())) {
-                throw new UserAlreadyExistException("Пользователь с таким email уже существует");
-            }
-            oldUser.setEmail(user.getEmail());
-        }
-        users.put(oldUser.getId(), oldUser);
-        log.info("Обновлен пользователь: {}", oldUser);
-        return oldUser;
+        users.put(user.getId(), user);
+        log.info("Обновлен пользователь: {}", user);
+        return user;
     }
 
     @Override
@@ -75,8 +68,9 @@ public class InMemoryUserRepository implements UserRepository {
         return id++;
     }
 
-    private boolean isEmailUnique(String email) {
+    private boolean isEmailUnique(String email, Long id) {
         return users.values().stream()
+                .filter(user -> !user.getId().equals(id))
                 .noneMatch(user -> user.getEmail().equals(email));
     }
 }
