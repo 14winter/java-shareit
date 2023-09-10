@@ -2,7 +2,8 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -11,7 +12,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-@Component
+@Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -28,7 +29,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         log.info("Получен запрос на создание пользователя");
-        User createdUser = userRepository.create(UserMapper.toUser(userDto));
+        User createdUser = userRepository.save(UserMapper.toUser(userDto));
         return UserMapper.toUserDto(createdUser);
     }
 
@@ -42,20 +43,21 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() != null && !userDto.getEmail().isBlank() && !userDto.getEmail().equals(updatedUser.getEmail())) {
             updatedUser.setEmail(userDto.getEmail());
         }
-        userRepository.update(UserMapper.toUser(updatedUser), id);
+        userRepository.save(UserMapper.toUser(updatedUser));
         return updatedUser;
     }
 
     @Override
     public UserDto getUser(Long id) {
         log.info("Получен запрос на получение пользователя");
-        User user = userRepository.getUser(id);
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new UserNotFoundException(id));
         return UserMapper.toUserDto(user);
     }
 
     @Override
     public void deleteUser(Long id) {
         log.info("Получен запрос на удаление пользователя");
-        userRepository.deleteUser(id);
+        userRepository.deleteById(id);
     }
 }
