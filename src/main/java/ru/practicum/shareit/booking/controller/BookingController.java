@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingAddDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
@@ -33,14 +34,14 @@ public class BookingController {
 
     @GetMapping()
     public Collection<BookingDto> findAllByUser(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                @RequestParam(defaultValue = "ALL", required = false) String state) {
+                                                @RequestParam(defaultValue = "ALL", required = false) BookingState state) {
 
         return bookingService.findAllByUser(userId, state);
     }
 
     @GetMapping("/owner")
     public Collection<BookingDto> findAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @RequestParam(defaultValue = "ALL", required = false) String state) {
+                                                 @RequestParam(defaultValue = "ALL", required = false) BookingState state) {
         return bookingService.findAllByOwner(userId, state);
     }
 }
