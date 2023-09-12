@@ -5,10 +5,11 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 
 @Data
 @Builder
-public class ItemDto {
+public class ItemDtoComment {
     private Long id;
     @NotBlank
     private String name;
@@ -18,4 +19,5 @@ public class ItemDto {
     private Boolean available;
     private Long owner;
     private Long request;
+    private Collection<CommentDto> comments;
 }
