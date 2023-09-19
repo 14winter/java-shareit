@@ -7,7 +7,7 @@ import ru.practicum.shareit.item.dto.ItemDtoBooking;
 import java.util.Collection;
 
 public interface ItemService {
-    Collection<ItemDtoBooking> findAllByOwner(Long userId);
+    Collection<ItemDtoBooking> findAllByOwner(Long userId, int from, int size);
 
     ItemDto create(Long userId, ItemDto itemDto);
 
@@ -15,7 +15,7 @@ public interface ItemService {
 
     ItemDtoBooking getItem(Long userId, Long id);
 
-    Collection<ItemDto> search(Long userId, String text);
+    Collection<ItemDto> search(Long userId, String text, int from, int size);
 
     CommentDto createComment(Long userId, Long itemId, CommentDto commentDto);
 }
