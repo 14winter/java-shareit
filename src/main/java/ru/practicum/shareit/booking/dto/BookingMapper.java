@@ -31,4 +31,13 @@ public class BookingMapper {
                 .end(booking.getEnd())
                 .build();
     }
+
+    public static BookingDtoForItem toToBookingDtoForItemBookingDto(BookingDto bookingDto) {
+        return BookingDtoForItem.builder()
+                .id(bookingDto.getId())
+                .bookerId(bookingDto.getBooker().getId())
+                .start(bookingDto.getStart())
+                .end(bookingDto.getEnd())
+                .build();
+    }
 }
