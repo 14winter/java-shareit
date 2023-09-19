@@ -1,8 +1,6 @@
 package ru.practicum.shareit.request.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -10,6 +8,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
+@RequiredArgsConstructor
+@AllArgsConstructor
 @Builder
 @Entity
 @Table(name = "requests")
