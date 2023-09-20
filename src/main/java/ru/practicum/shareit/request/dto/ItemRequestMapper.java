@@ -22,4 +22,20 @@ public class ItemRequestMapper {
                 .items(items)
                 .build();
     }
+
+    public static ItemRequest toItemRequestItemRequestAddDto(ItemRequestAddDto itemRequestAddDto) {
+        return ItemRequest.builder()
+                .id(itemRequestAddDto.getId())
+                .description(itemRequestAddDto.getDescription())
+                .created(itemRequestAddDto.getCreated())
+                .build();
+    }
+
+    public static ItemRequestAddDto toItemRequestAddDto(ItemRequest itemRequest) {
+        return ItemRequestAddDto.builder()
+                .id(itemRequest.getId())
+                .description(itemRequest.getDescription())
+                .created(itemRequest.getCreated())
+                .build();
+    }
 }

@@ -98,39 +98,27 @@ public class BookingServiceImpl implements BookingService {
     public Collection<BookingDto> findAllByUser(Long bookerId, BookingState state, int from, int size) {
         log.info("Получен запрос бронирований пользователя с id {}", bookerId);
         getUserById(bookerId);
-        if (from < 0) {
-            throw new ValidationException("Индекс страницы не может быть отрицательной.");
-        }
-        if (size < 1) {
-            throw new ValidationException("Количество элементов не может быть отрицательной.");
-        }
-        PageRequest pageRequest = PageRequest.of(from / size, size);
+        PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "end"));
         LocalDateTime dateTime = LocalDateTime.now();
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findByBooker_Id(bookerId,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByBooker_Id(bookerId, pageRequest);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfter(bookerId, dateTime, dateTime,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfter(bookerId, dateTime, dateTime, pageRequest);
                 break;
             case PAST:
-                bookings = bookingRepository.findByBooker_IdAndEndIsBefore(bookerId, dateTime,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByBooker_IdAndEndIsBefore(bookerId, dateTime, pageRequest);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findByBooker_IdAndStartIsAfter(bookerId, dateTime,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByBooker_IdAndStartIsAfter(bookerId, dateTime, pageRequest);
                 break;
             case WAITING:
-                bookings = bookingRepository.findByBooker_IdAndStatus(bookerId, BookingStatus.WAITING,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByBooker_IdAndStatus(bookerId, BookingStatus.WAITING, pageRequest);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findByBooker_IdAndStatus(bookerId, BookingStatus.REJECTED,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByBooker_IdAndStatus(bookerId, BookingStatus.REJECTED, pageRequest);
                 break;
         }
         return bookings.stream().map(BookingMapper::toBookingDto).collect(Collectors.toList());
@@ -141,39 +129,28 @@ public class BookingServiceImpl implements BookingService {
     public Collection<BookingDto> findAllByOwner(Long ownerId, BookingState state, int from, int size) {
         log.info("Получен запрос бронирования вещи пользователя с id {}", ownerId);
         getUserById(ownerId);
-        if (from < 0) {
-            throw new ValidationException("Индекс страницы не может быть отрицательной.");
-        }
-        if (size < 1) {
-            throw new ValidationException("Количество элементов не может быть отрицательной.");
-        }
-        PageRequest pageRequest = PageRequest.of(from / size, size);
+        PageRequest pageRequest = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "end"));
         LocalDateTime dateTime = LocalDateTime.now();
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findByItem_Owner_Id(ownerId, Sort.by(Sort.Direction.DESC,
-                        "start"), pageRequest);
+                bookings = bookingRepository.findByItem_Owner_Id(ownerId, pageRequest);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(ownerId,
-                        dateTime, dateTime, Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                        dateTime, dateTime, pageRequest);
                 break;
             case PAST:
-                bookings = bookingRepository.findByItem_Owner_IdAndEndIsBefore(ownerId, dateTime,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByItem_Owner_IdAndEndIsBefore(ownerId, dateTime, pageRequest);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findByItem_Owner_IdAndStartIsAfter(ownerId, dateTime,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByItem_Owner_IdAndStartIsAfter(ownerId, dateTime, pageRequest);
                 break;
             case WAITING:
-                bookings = bookingRepository.findByItem_Owner_IdAndStatus(ownerId, BookingStatus.WAITING,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByItem_Owner_IdAndStatus(ownerId, BookingStatus.WAITING, pageRequest);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findByItem_Owner_IdAndStatus(ownerId, BookingStatus.REJECTED,
-                        Sort.by(Sort.Direction.DESC, "end"), pageRequest);
+                bookings = bookingRepository.findByItem_Owner_IdAndStatus(ownerId, BookingStatus.REJECTED, pageRequest);
                 break;
         }
         return bookings.stream().map(BookingMapper::toBookingDto).collect(Collectors.toList());

@@ -45,12 +45,6 @@ public class ItemServiceImpl implements ItemService {
     public Collection<ItemDtoBooking> findAllByOwner(Long userId, int from, int size) {
         log.info("Получен запрос на получение списка вещей пользователя по id {}", userId);
         User user = getUserById(userId);
-        if (from < 0) {
-            throw new ValidationException("Индекс страницы не может быть отрицательной.");
-        }
-        if (size < 1) {
-            throw new ValidationException("Количество элементов не может быть отрицательной.");
-        }
         PageRequest pageRequest = PageRequest.of(from / size, size);
         List<ItemDtoBooking> itemDtoBookings = new ArrayList<>();
         Map<Long, Item> itemMap = itemRepository.findAllByOwner(user, pageRequest).stream()
@@ -177,12 +171,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public Collection<ItemDto> search(Long userId, String text, int from, int size) {
         log.info("Получен запрос на поиск вещей от пользователя по id {}", userId);
-        if (from < 0) {
-            throw new ValidationException("Индекс страницы не может быть отрицательной.");
-        }
-        if (size < 1) {
-            throw new ValidationException("Количество элементов не может быть отрицательной.");
-        }
         PageRequest pageRequest = PageRequest.of(from / size, size);
         if (text == null || text.isBlank()) {
             return List.of();

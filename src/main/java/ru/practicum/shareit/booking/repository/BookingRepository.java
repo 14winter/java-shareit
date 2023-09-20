@@ -12,25 +12,25 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByBooker_Id(Long bookerId, Sort sort, PageRequest pageRequest);
+    List<Booking> findByBooker_Id(Long bookerId, PageRequest pageRequest);
 
-    List<Booking> findByBooker_IdAndStatus(Long userId, BookingStatus waiting, Sort sort, PageRequest pageRequest);
+    List<Booking> findByBooker_IdAndStatus(Long userId, BookingStatus waiting, PageRequest pageRequest);
 
-    List<Booking> findByBooker_IdAndEndIsBefore(Long bookerId, LocalDateTime end, Sort sort, PageRequest pageRequest);
+    List<Booking> findByBooker_IdAndEndIsBefore(Long bookerId, LocalDateTime end, PageRequest pageRequest);
 
-    List<Booking> findByBooker_IdAndStartIsAfter(Long bookerId, LocalDateTime start, Sort sort, PageRequest pageRequest);
+    List<Booking> findByBooker_IdAndStartIsAfter(Long bookerId, LocalDateTime start, PageRequest pageRequest);
 
-    List<Booking> findByItem_Owner_Id(Long ownerId, Sort sort, PageRequest pageRequest);
+    List<Booking> findByItem_Owner_Id(Long ownerId, PageRequest pageRequest);
 
-    List<Booking> findByItem_Owner_IdAndEndIsBefore(Long ownerId, LocalDateTime end, Sort sort, PageRequest pageRequest);
+    List<Booking> findByItem_Owner_IdAndEndIsBefore(Long ownerId, LocalDateTime end, PageRequest pageRequest);
 
-    List<Booking> findByItem_Owner_IdAndStartIsAfter(Long ownerId, LocalDateTime start, Sort sort, PageRequest pageRequest);
+    List<Booking> findByItem_Owner_IdAndStartIsAfter(Long ownerId, LocalDateTime start, PageRequest pageRequest);
 
-    List<Booking> findByItem_Owner_IdAndStatus(Long bookerId, BookingStatus status, Sort sort, PageRequest pageRequest);
+    List<Booking> findByItem_Owner_IdAndStatus(Long bookerId, BookingStatus status, PageRequest pageRequest);
 
-    List<Booking> findByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(Long ownerId, LocalDateTime start, LocalDateTime end, Sort sort, PageRequest pageRequest);
+    List<Booking> findByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(Long ownerId, LocalDateTime start, LocalDateTime end, PageRequest pageRequest);
 
-    List<Booking> findByBooker_IdAndStartIsBeforeAndEndIsAfter(Long bookerId, LocalDateTime start, LocalDateTime end, Sort sort, PageRequest pageRequest);
+    List<Booking> findByBooker_IdAndStartIsBeforeAndEndIsAfter(Long bookerId, LocalDateTime start, LocalDateTime end, PageRequest pageRequest);
 
     @Query(nativeQuery = true,
             value = "SELECT * FROM bookings " +

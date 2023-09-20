@@ -1,12 +1,17 @@
 package ru.practicum.shareit.request.controller;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.request.dto.ItemRequestAddDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 
+@Validated
 @RestController
 @RequestMapping("/requests")
 public class ItemRequestController {
@@ -17,8 +22,8 @@ public class ItemRequestController {
     }
 
     @PostMapping
-    public ItemRequestDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody @Valid ItemRequestDto itemRequestDto) {
-        return itemRequestService.create(userId, itemRequestDto);
+    public ItemRequestDto create(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody @Valid ItemRequestAddDto itemRequestAddDto) {
+        return itemRequestService.create(userId, itemRequestAddDto);
     }
 
     @GetMapping
@@ -27,8 +32,12 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
-    public Collection<ItemRequestDto> findAll(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam(defaultValue = "0") int from,
-                                              @RequestParam(defaultValue = "10") int size) {
+    public Collection<ItemRequestDto> findAll(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PositiveOrZero
+            @RequestParam(defaultValue = "0") int from,
+            @Positive
+            @RequestParam(defaultValue = "10") int size) {
         return itemRequestService.findAll(userId, from, size);
     }
 

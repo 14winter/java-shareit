@@ -10,10 +10,10 @@ import ru.practicum.shareit.booking.dto.BookingAddDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
+import ru.practicum.shareit.request.dto.ItemRequestAddDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -26,7 +26,6 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @SpringBootTest(properties = "db.name=test", webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -57,7 +56,7 @@ public class ItemServiceImplTest {
         em.createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE;").executeUpdate();
         user1 = userService.create(UserDto.builder().name("User1").email("user1@test.ru").build());
         user2 = userService.create(UserDto.builder().name("User2").email("user2@test.ru").build());
-        request = itemRequestService.create(user2.getId(), ItemRequestDto.builder().description("Request item").build());
+        request = itemRequestService.create(user2.getId(), ItemRequestAddDto.builder().description("Request item").build());
         itemDto.setRequestId(1L);
         itemDto.setAvailable(true);
         itemDto.setDescription("Description item");
@@ -151,29 +150,5 @@ public class ItemServiceImplTest {
         assertThat(comment.getCreated(), notNullValue());
         assertThat(comment.getAuthorName(), equalTo(user2.getName()));
         assertThat(comment.getText(), equalTo(commentDto.getText()));
-    }
-
-    @Test
-    void findAllByOwner_InvalidFrom() {
-
-        assertThrows(ValidationException.class, () -> itemService.findAllByOwner(1L, -1, 5));
-    }
-
-    @Test
-    void findAllByOwner_InvalidSize() {
-
-        assertThrows(ValidationException.class, () -> itemService.findAllByOwner(1L, 0, -5));
-    }
-
-    @Test
-    void search_InvalidFrom() {
-
-        assertThrows(ValidationException.class, () -> itemService.findAllByOwner(1L, -1, 5));
-    }
-
-    @Test
-    void search_InvalidSize() {
-
-        assertThrows(ValidationException.class, () -> itemService.findAllByOwner(1L, 0, -5));
     }
 }

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -8,8 +9,11 @@ import ru.practicum.shareit.item.dto.ItemDtoBooking;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 
+@Validated
 @RestController
 @RequestMapping("/items")
 public class ItemController {
@@ -22,7 +26,9 @@ public class ItemController {
 
     @GetMapping
     public Collection<ItemDtoBooking> findAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                     @PositiveOrZero
                                                      @RequestParam(defaultValue = "0") int from,
+                                                     @Positive
                                                      @RequestParam(defaultValue = "10") int size) {
         return itemService.findAllByOwner(userId, from, size);
     }
@@ -44,7 +50,9 @@ public class ItemController {
 
     @GetMapping("/search")
     public Collection<ItemDto> search(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestParam String text,
+                                      @PositiveOrZero
                                       @RequestParam(defaultValue = "0") int from,
+                                      @Positive
                                       @RequestParam(defaultValue = "10") int size) {
         return itemService.search(userId, text, from, size);
     }

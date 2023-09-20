@@ -10,6 +10,7 @@ import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.dto.ItemRequestAddDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -17,7 +18,6 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,10 +35,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     @Transactional
-    public ItemRequestDto create(Long userId, ItemRequestDto itemRequestDto) {
+    public ItemRequestDto create(Long userId, ItemRequestAddDto itemRequestAddDto) {
         log.info("Получен запрос новой вещи пользователем с id {}", userId);
         User user = getUserById(userId);
-        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto);
+        ItemRequest itemRequest = ItemRequestMapper.toItemRequestItemRequestAddDto(itemRequestAddDto);
         itemRequest.setRequestor(user);
         itemRequest.setCreated(LocalDateTime.now().withNano(0));
         ItemRequest createdItemRequest = itemRequestRepository.save(itemRequest);
@@ -50,7 +50,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public Collection<ItemRequestDto> findAllByOwner(Long userId) {
         log.info("Получен запрос на получение списка запросов вещей пользователя с id {}", userId);
         getUserById(userId);
-        List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestor_Id(userId);
+        List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestor_IdOrderByCreatedDesc(userId);
 
         Map<Long, ItemDto> itemsMap = itemRepository.findAllByRequest_IdIn(itemRequests.stream()
                         .map(ItemRequest::getId)
@@ -68,12 +68,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> findAll(Long userId, int from, int size) {
         log.info("Получен запрос на получение списка всех запросов вещей от пользователя с id {}", userId);
         getUserById(userId);
-        if (from < 0) {
-            throw new ValidationException("Индекс страницы не может быть отрицательной.");
-        }
-        if (size < 1) {
-            throw new ValidationException("Количество элементов не может быть отрицательной.");
-        }
         PageRequest pageRequest = PageRequest.of(from / size, size);
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestor_IdNot(userId, pageRequest);
 

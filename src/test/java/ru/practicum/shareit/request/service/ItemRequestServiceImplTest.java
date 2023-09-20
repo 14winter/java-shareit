@@ -10,6 +10,7 @@ import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.request.dto.ItemRequestAddDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -20,9 +21,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.validation.ValidationException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -65,8 +64,8 @@ public class ItemRequestServiceImplTest {
         User createdUser = UserMapper.toUser(userService.create(userDto));
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setDescription("Test description");
-        ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest, Collections.emptyList());
-        service.create(1L, itemRequestDto);
+        ItemRequestAddDto itemRequestAddDto = ItemRequestMapper.toItemRequestAddDto(itemRequest);
+        service.create(1L, itemRequestAddDto);
         TypedQuery<ItemRequest> query = em.createQuery(
                 "select i from ItemRequest i where i.description = :description",
                 ItemRequest.class);
@@ -83,8 +82,8 @@ public class ItemRequestServiceImplTest {
         item.setRequest(itemRequest1);
         userService.create(UserMapper.toUserDto(user1));
         userService.create(UserMapper.toUserDto(user2));
-        ItemRequestDto itemRequestDto1 = service.create(1L, ItemRequestMapper.toItemRequestDto(itemRequest1, Collections.emptyList()));
-        ItemRequestDto itemRequestDto2 = service.create(1L, ItemRequestMapper.toItemRequestDto(itemRequest2, Collections.emptyList()));
+        ItemRequestDto itemRequestDto1 = service.create(1L, ItemRequestMapper.toItemRequestAddDto(itemRequest1));
+        ItemRequestDto itemRequestDto2 = service.create(1L, ItemRequestMapper.toItemRequestAddDto(itemRequest2));
         itemService.create(2L, ItemMapper.toItemDto(item));
         Collection<ItemRequestDto> requests = service.findAllByOwner(user1.getId());
         List<ItemRequestDto> expectedRequests = List.of(itemRequestDto1, itemRequestDto2);
@@ -102,8 +101,8 @@ public class ItemRequestServiceImplTest {
         item.setRequest(itemRequest1);
         userService.create(UserMapper.toUserDto(user1));
         userService.create(UserMapper.toUserDto(user2));
-        ItemRequestDto itemRequestDto1 = service.create(1L, ItemRequestMapper.toItemRequestDto(itemRequest1, Collections.emptyList()));
-        ItemRequestDto itemRequestDto2 = service.create(1L, ItemRequestMapper.toItemRequestDto(itemRequest2, Collections.emptyList()));
+        ItemRequestDto itemRequestDto1 = service.create(1L, ItemRequestMapper.toItemRequestAddDto(itemRequest1));
+        ItemRequestDto itemRequestDto2 = service.create(1L, ItemRequestMapper.toItemRequestAddDto(itemRequest2));
         itemService.create(2L, ItemMapper.toItemDto(item));
         Collection<ItemRequestDto> requests = service.findAll(2L, 0, 5);
         List<ItemRequestDto> expectedRequests = List.of(itemRequestDto1, itemRequestDto2);
@@ -120,7 +119,7 @@ public class ItemRequestServiceImplTest {
     public void getRequestByIdTest() {
         userService.create(UserMapper.toUserDto(user1));
         userService.create(UserMapper.toUserDto(user2));
-        ItemRequestDto itemRequestDto = service.create(1L, ItemRequestMapper.toItemRequestDto(itemRequest1, Collections.emptyList()));
+        ItemRequestDto itemRequestDto = service.create(1L, ItemRequestMapper.toItemRequestAddDto(itemRequest1));
         item.setRequest(ItemRequestMapper.toItemRequest(itemRequestDto));
         itemService.create(2L, ItemMapper.toItemDto(item));
         ItemRequestDto newItemRequest1 = service.getRequest(1L, 1L);
@@ -128,20 +127,6 @@ public class ItemRequestServiceImplTest {
         assertThat(newItemRequest1.getItems(), equalTo(List.of(ItemMapper.toItemDto(item))));
         assertThat(newItemRequest1.getCreated(), equalTo(itemRequestDto.getCreated()));
         assertThat(newItemRequest1.getDescription(), equalTo("Test request 1"));
-    }
-
-    @Test
-    void findAll_InvalidFrom() {
-        userService.create(UserMapper.toUserDto(user1));
-
-        assertThrows(ValidationException.class, () -> service.findAll(1L, -1, 5));
-    }
-
-    @Test
-    void findAll_InvalidSize() {
-        userService.create(UserMapper.toUserDto(user1));
-
-        assertThrows(ValidationException.class, () -> service.findAll(1L, 0, -5));
     }
 
     @Test
