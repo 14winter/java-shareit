@@ -21,13 +21,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handle(final InvalidEmailException e) {
-        log.error("Invalid email exception: {}", e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handle(final UserAlreadyExistException e) {
         log.error("User already exist exception: {}", e.getMessage());
@@ -60,5 +53,19 @@ public class ErrorHandler {
     public ErrorResponse handle(final IllegalArgumentException e) {
         log.error("Unknown state: UNSUPPORTED_STATUS");
         return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS");
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(final NotAvailableException e) {
+        log.error("Not available exception: {}", e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(final RequestNotFoundException e) {
+        log.error("Request not found exception: {}", e.getMessage());
+        return new ErrorResponse(e.getMessage());
     }
 }
