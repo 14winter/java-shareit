@@ -52,8 +52,6 @@ public class BookingServiceImpl implements BookingService {
         if (isBookingAvailable(bookingAddDto)) {
             throw new ValidationException("Вещь недоступна в это время");
         }
-        if (bookingAddDto.getStart().isAfter(bookingAddDto.getEnd()) || bookingAddDto.getStart().equals(bookingAddDto.getEnd()))
-            throw new ValidationException("Неверно указано время");
         if (item.getOwner().getId().equals(userId))
             throw new BookingNotFoundException(String.format("Невозможно бронирование собственной вещи пользователем с id %d", userId));
         Booking booking = BookingMapper.toBooking(bookingAddDto);

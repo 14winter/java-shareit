@@ -154,16 +154,6 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void createBooking_InvalidDate() {
-        BookingAddDto bookingAddDto = BookingAddDto.builder()
-                .itemId(1L)
-                .start(LocalDateTime.now().minusHours(1))
-                .end(LocalDateTime.now().minusHours(2)).build();
-
-        assertThrows(ValidationException.class, () -> bookingService.create(user.getId(), bookingAddDto));
-    }
-
-    @Test
     void approvedBooking() throws ValidationException {
         bookingService.update(1L, 1L, "true");
         bookingService.update(1L, 3L, "false");

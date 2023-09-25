@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingAddDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
+import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -23,6 +24,8 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Object> create(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @Valid @RequestBody BookingAddDto bookingAddDto) {
+        if (bookingAddDto.getStart().isAfter(bookingAddDto.getEnd()) || bookingAddDto.getStart().equals(bookingAddDto.getEnd()))
+            throw new ValidationException("Неверно указано время");
         return bookingClient.create(userId, bookingAddDto);
     }
 
